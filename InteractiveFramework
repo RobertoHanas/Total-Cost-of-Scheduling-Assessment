@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Cost of Scheduling Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #666;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            background: rgba(248, 250, 252, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .form-group:focus-within {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .benchmark-note {
+            background: #e3f2fd;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #1565c0;
+            margin-top: 8px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .cost-summary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .cost-summary h3 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .cost-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .cost-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .cost-breakdown {
+            background: rgba(248, 250, 252, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .breakdown-section {
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .breakdown-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(248, 250, 252, 0.8);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .breakdown-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateX(2px);
+        }
+
+        .breakdown-item span:first-child {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .breakdown-item span:last-child {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .cost-item h4 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .cost-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .benchmark-comparison {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .ai-opportunities {
+            background: rgba(248, 250, 252, 0.9);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .opportunity-item {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .opportunity-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .opportunity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .opportunity-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .impact-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .savings-highlight {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+
+        .export-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        .alert-info {
+            background: rgba(33, 150, 243, 0.1);
+            color: #1565c0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.8s ease;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .tab {
+                margin-bottom: 5px;
+                min-width: auto;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .cost-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .opportunity-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Total Cost of Scheduling Assessment</h1>
+            <p>Interactive framework to measure scheduling costs and calculate AI ROI</p>
+            <div class="alert alert-info">
+                <strong>Enhanced with Industry Benchmarks:</strong> Get instant context and estimation guidance
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="baseline">1. Baseline</div>
+            <div class="tab" data-tab="costs">2. Cost Analysis</div>
+            <div class="tab" data-tab="ai">3. AI Opportunities</div>
+            <div class="tab" data-tab="roi">4. ROI Calculator</div>
+            <div class="tab" data-tab="report">5. Report</div>
+        </div>
+
+        <!-- Baseline Tab -->
+        <div id="baseline" class="tab-content active">
+            <h2>Step 1: Establish Your Baseline</h2>
+            <p style="margin-bottom: 20px; color: #666;">Enter your organization's data. Industry benchmarks guide estimation.</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Organization Name</label>
+                    <input type="text" id="orgName" placeholder="Your Organization" value="Sample Organization">
+                </div>
+                <div class="form-group">
+                    <label>Number of employees</label>
+                    <input type="number" id="employeeCount" placeholder="e.g., 100" value="100">
+                    <div class="benchmark-note">
+                        <strong>Note:</strong> Framework works for 25-500 employees
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Average hourly wage ($)</label>
+                    <input type="number" id="hourlyWage" placeholder="e.g., 25" value="25" step="0.01">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> Use blended average including benefits (~30% higher than base)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Manager hourly cost ($)</label>
+                    <input type="number" id="managerCost" placeholder="e.g., 50" value="50" step="0.01">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> Typically 1.5-2.5x average employee wage
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hours managers spend weekly on scheduling</label>
+                    <input type="number" id="managerHours" placeholder="e.g., 10" value="10" step="0.5">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> 2-4 hours per week per 10 employees<br>
+                        <strong>Quick estimate:</strong> (Employees ÷ 10) × 3 hours
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Weekly overtime hours</label>
+                    <input type="number" id="overtimeHours" placeholder="e.g., 50" value="50">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> 3-8% of total work hours<br>
+                        <strong>If unknown:</strong> (Employees × 40) × 5%
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Monthly temporary/agency labor cost ($)</label>
+                    <input type="number" id="tempCost" placeholder="e.g., 5000" value="5000">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> 2-5% of regular payroll<br>
+                        <strong>Range:</strong> $2K-$8K monthly per 100 employees
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Scheduling conflicts per month</label>
+                    <input type="number" id="conflicts" placeholder="e.g., 20" value="20">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> 15-30 conflicts per 100 employees monthly
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Employee turnover rate (%)</label>
+                    <input type="number" id="turnoverRate" placeholder="e.g., 15" value="15" step="0.1">
+                    <div class="benchmark-note">
+                        <strong>Averages:</strong> Retail 60%+, Healthcare 20%, Office 12%
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Productivity loss from overwork (%)</label>
+                    <input type="number" id="productivityLoss" placeholder="e.g., 15" value="15" step="0.1">
+                    <div class="benchmark-note">
+                        <strong>Research range:</strong> 12-25% loss when overworked<br>
+                        <strong>Default:</strong> Use 15% if unsure
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Average recruitment cost per hire ($)</label>
+                    <input type="number" id="recruitmentCost" placeholder="e.g., 5000" value="5000">
+                    <div class="benchmark-note">
+                        <strong>Benchmark:</strong> 20-30% of annual salary
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Compliance risk level</label>
+                    <select id="complianceRisk">
+                        <option value="0.001">Low Risk (0.1% of payroll)</option>
+                        <option value="0.005" selected>Medium Risk (0.5% of payroll)</option>
+                        <option value="0.015">High Risk (1.5% of payroll)</option>
+                    </select>
+                    <div class="benchmark-note">
+                        <strong>Low:</strong> Strong policies, no issues<br>
+                        <strong>High:</strong> Violations, union environment
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Analysis Tab -->
+        <div id="costs" class="tab-content">
+            <h2>Step 2: Cost Analysis with Industry Benchmarks</h2>
+            <p style="margin-bottom: 20px; color: #666;">Your scheduling costs with industry comparisons.</p>
+            
+            <div class="cost-summary">
+                <h3>Total Annual Scheduling Cost</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="costProgress"></div>
+                </div>
+                <div class="cost-amount" id="totalCost">$0</div>
+                <div class="benchmark-comparison">Benchmark: $150K-$400K per 100 employees</div>
+                
+                <div class="cost-grid">
+                    <div class="cost-item">
+                        <h4>📋 Direct Operational</h4>
+                        <div class="cost-amount" id="directCost">$0</div>
+                        <div class="benchmark-comparison">$50K-$150K per 100 employees</div>
+                    </div>
+                    <div class="cost-item">
+                        <h4>📈 Performance & Productivity</h4>
+                        <div class="cost-amount" id="performanceCost">$0</div>
+                        <div class="benchmark-comparison">15-30% of total payroll</div>
+                    </div>
+                    <div class="cost-item">
+                        <h4>⚠️ Strategic & Risk</h4>
+                        <div class="cost-amount" id="strategicCost">$0</div>
+                        <div class="benchmark-comparison">5-15% of total payroll</div>
+                    </div>
+                    <div class="cost-item">
+                        <h4>👤 Cost per Employee</h4>
+                        <div class="cost-amount" id="costPerEmployee">$0</div>
+                        <div class="benchmark-comparison">$1,500-$4,000 per employee</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cost-breakdown">
+                <h2>💰 Detailed Cost Breakdown</h2>
+                
+                <div class="breakdown-section">
+                    <h3>📋 Direct Operational Costs</h3>
+                    <div class="breakdown-item">
+                        <span>Manager Scheduling Time:</span>
+                        <span id="managerTimeBreakdown">$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Overtime Premium:</span>
+                        <span id="overtimePremiumBreakdown">$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Temporary Labor:</span>
+                        <span id="tempLaborBreakdown">$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Conflict Resolution:</span>
+                        <span id="conflictResolutionBreakdown">$0</span>
+                    </div>
+                </div>
+
+                <div class="breakdown-section">
+                    <h3>📈 Performance & Productivity Costs</h3>
+                    <div class="breakdown-item">
+                        <span>Lost Productivity:</span>
+                        <span id="productivityCostBreakdown">$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Quality Issues:</span>
+                        <span id="qualityIssuesBreakdown">$0</span>
+                    </div>
+                </div>
+
+                <div class="breakdown-section">
+                    <h3>⚠️ Strategic & Risk Costs</h3>
+                    <div class="breakdown-item">
+                        <span>Employee Turnover:</span>
+                        <span id="turnoverCostBreakdown">$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Compliance Risk:</span>
+                        <span id="complianceCostBreakdown">$0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Customer Impact:</span>
+                        <span id="customerImpactBreakdown">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Opportunities Tab -->
+        <div id="ai" class="tab-content">
+            <h2>Step 3: AI Opportunities Analysis</h2>
+            <p style="margin-bottom: 20px; color: #666;">How AI scheduling solutions address your inefficiencies.</p>
+
+            <div class="alert alert-success">
+                <strong>Total Potential Savings:</strong> <span id="totalPotentialSavings">$0</span> annually
+                (<span id="savingsPercentage">0%</span> of current costs)
+            </div>
+
+            <div class="ai-opportunities">
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div class="opportunity-title">🤖 AI Schedule Automation</div>
+                        <span class="impact-badge">High Impact</span>
+                    </div>
+                    <p><strong>Addresses:</strong> Manual scheduling conflicts and manager time</p>
+                    <p><strong>Solution:</strong> Automated schedule generation with conflict resolution</p>
+                    <div class="savings-highlight">Annual Savings: <span id="automationSavings">$0</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        <strong>Timeline:</strong> 3-6 months | <strong>Difficulty:</strong> Medium
+                    </div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div class="opportunity-title">📊 Predictive Demand Forecasting</div>
+                        <span class="impact-badge">Medium Impact</span>
+                    </div>
+                    <p><strong>Addresses:</strong> Overstaffing, understaffing, and overtime</p>
+                    <p><strong>Solution:</strong> AI predicts optimal staffing levels</p>
+                    <div class="savings-highlight">Annual Savings: <span id="forecastingSavings">$0</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        <strong>Timeline:</strong> 6-12 months | <strong>Difficulty:</strong> High
+                    </div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div class="opportunity-title">😊 Employee Preference Optimization</div>
+                        <span class="impact-badge">High Impact</span>
+                    </div>
+                    <p><strong>Addresses:</strong> Employee dissatisfaction and turnover</p>
+                    <p><strong>Solution:</strong> Balance business needs with employee preferences</p>
+                    <div class="savings-highlight">Annual Savings: <span id="preferencesSavings">$0</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        <strong>Timeline:</strong> 3-6 months | <strong>Difficulty:</strong> Low-Medium
+                    </div>
+                </div>
+
+                <div class="opportunity-item">
+                    <div class="opportunity-header">
+                        <div class="opportunity-title">⚖️ Real-time Compliance Monitoring</div>
+                        <span class="impact-badge">Medium Impact</span>
+                    </div>
+                    <p><strong>Addresses:</strong> Labor law violations and penalties</p>
+                    <p><strong>Solution:</strong> Automated compliance monitoring and alerts</p>
+                    <div class="savings-highlight">Annual Savings: <span id="complianceSavings">$0</span></div>
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
+                        <strong>Timeline:</strong> 2-4 months | <strong>Difficulty:</strong> Low
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROI Calculator Tab -->
+        <div id="roi" class="tab-content">
+            <h2>Step 4: ROI Calculator & Business Case</h2>
+            <p style="margin-bottom: 20px; color: #666;">Calculate financial return on AI scheduling investment.</p>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>AI Solution Cost ($)</label>
+                    <input type="number" id="aiCost" placeholder="e.g., 75000" value="75000">
+                    <div class="benchmark-note">
+                        <strong>Range:</strong> $25K-$150K depending on size and complexity
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Implementation Services ($)</label>
+                    <input type="number" id="implementationCost" placeholder="e.g., 30000" value="30000">
+                    <div class="benchmark-note">
+                        <strong>Typical:</strong> 30-50% of software cost
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Annual Maintenance ($)</label>
+                    <input type="number" id="maintenanceCost" placeholder="e.g., 15000" value="15000">
+                    <div class="benchmark-note">
+                        <strong>Typical:</strong> 15-20% of software cost annually
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Implementation Success Rate (%)</label>
+                    <input type="number" id="successRate" placeholder="e.g., 75" value="75" step="1" min="0" max="100">
+                    <div class="benchmark-note">
+                        <strong>Industry average:</strong> 70-80% achieve expected benefits
+                    </div>
+                </div>
+            </div>
+
+            <div class="cost-summary">
+                <h3>3-Year ROI Analysis</h3>
+                <div class="cost-grid">
+                    <div class="cost-item">
+                        <h4>💰 Total Investment</h4>
+                        <div class="cost-amount" id="totalInvestment">$0</div>
+                        <div class="benchmark-comparison">One-time + 3 years maintenance</div>
+                    </div>
+                    <div class="cost-item">
+                        <h4>📈 Annual Savings</h4>
+                        <div class="cost-amount" id="annualSavings">$0</div>
+                        <div class="benchmark-comparison">Realistic expectations</div>
+                    </div>
+                    <div class="cost-item">
+                        <h4>⚡ ROI Percentage</h4>
+                        <div class="cost-amount" id="roiPercentage">0%</div>
+                        <div class="benchmark-comparison">3-year return</div>
+                    </div>
+                    <div class="cost-item">
+                        <h4>⏱️ Payback Period</h4>
+                        <div class="cost-amount" id="paybackPeriod">0 months</div>
+                        <div class="benchmark-comparison">Time to break even</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Tab -->
+        <div id="report" class="tab-content">
+            <h2>Step 5: Executive Summary & Action Plan</h2>
+            <p style="margin-bottom: 20px; color: #666;">Comprehensive report for stakeholder presentation.</p>
+
+            <div class="alert alert-info">
+                <strong>Assessment Complete!</strong> Your scheduling costs and AI business case are ready for presentation.
+            </div>
+
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50;">Executive Summary</h3>
+                <p><strong>Organization:</strong> <span id="reportOrgName">Sample Organization</span></p>
+                <p><strong>Assessment Date:</strong> <span id="reportDate"></span></p>
+                <p><strong>Employees Assessed:</strong> <span id="reportEmployeeCount">100</span></p>
+                
+                <h4 style="color: #2c3e50; margin: 15px 0 10px 0;">Key Findings</h4>
+                <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <p>• Total Annual Scheduling Cost: <strong id="reportTotalCost">$0</strong></p>
+                    <p>• Cost per Employee: <strong id="reportCostPerEmployee">$0</strong></p>
+                    <p>• Potential AI Savings: <strong id="reportPotentialSavings">$0</strong> annually</p>
+                    <p>• Projected 3-Year ROI: <strong id="reportROI">0%</strong></p>
+                </div>
+
+                <h4 style="color: #2c3e50; margin-bottom: 10px;">Recommendations</h4>
+                <div id="recommendations" style="background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p>Based on your assessment, we recommend proceeding with AI scheduling implementation.</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="export-btn" onclick="exportReport()">📄 Export Summary Report</button>
+                <button class="export-btn" onclick="exportData()">💾 Export All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let assessmentData = {
+            baseline: {},
+            costs: {},
+            aiSavings: {},
+            roi: {}
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to all input fields
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', calculateAll);
+                input.addEventListener('change', calculateAll);
+            });
+
+            // Add tab switching functionality
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    showTab(tabName);
+                });
+            });
+
+            // Initial calculation
+            calculateAll();
+            updateReport();
+        });
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Mark tab as active
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+        }
+
+        function calculateAll() {
+            // Get baseline data
+            const employeeCount = parseFloat(document.getElementById('employeeCount').value) || 100;
+            const hourlyWage = parseFloat(document.getElementById('hourlyWage').value) || 25;
+            const managerCost = parseFloat(document.getElementById('managerCost').value) || 50;
+            const managerHours = parseFloat(document.getElementById('managerHours').value) || 10;
+            const overtimeHours = parseFloat(document.getElementById('overtimeHours').value) || 50;
+            const tempCost = parseFloat(document.getElementById('tempCost').value) || 5000;
+            const conflicts = parseFloat(document.getElementById('conflicts').value) || 20;
+            const turnoverRate = parseFloat(document.getElementById('turnoverRate').value) || 15;
+            const productivityLoss = parseFloat(document.getElementById('productivityLoss').value) || 15;
+            const recruitmentCost = parseFloat(document.getElementById('recruitmentCost').value) || 5000;
+            const complianceRisk = parseFloat(document.getElementById('complianceRisk').value) || 0.005;
+
+            // Store baseline data
+            assessmentData.baseline = {
+                employeeCount, hourlyWage, managerCost, managerHours,
+                overtimeHours, tempCost, conflicts, turnoverRate,
+                productivityLoss, recruitmentCost, complianceRisk
+            };
+
+            // Calculate costs
+            calculateCosts();
+            calculateAIOpportunities();
+            calculateROI();
+            updateReport();
+        }
+
+        function calculateCosts() {
+            const { employeeCount, hourlyWage, managerCost, managerHours,
+                    overtimeHours, tempCost, conflicts, turnoverRate,
+                    productivityLoss, recruitmentCost, complianceRisk } = assessmentData.baseline;
+
+            // Direct operational costs (annual)
+            const managerTime = managerHours * 52 * managerCost; // Manager scheduling time
+            const overtimePremium = overtimeHours * 52 * hourlyWage * 0.5; // Only the premium portion
+            const tempLabor = tempCost * 12; // Annual temp costs
+            const conflictResolution = conflicts * 12 * 2 * managerCost; // 2 hours per conflict
+            const directCost = managerTime + overtimePremium + tempLabor + conflictResolution;
+
+            // Performance & productivity costs (annual)
+            const totalPayroll = employeeCount * hourlyWage * 40 * 52;
+            const productivityCost = totalPayroll * (productivityLoss / 100);
+            const qualityIssues = productivityCost * 0.2; // Quality issues are subset of productivity loss
+            const performanceCost = productivityCost + qualityIssues;
+
+            // Strategic & risk costs (annual)
+            const turnoverCost = employeeCount * (turnoverRate / 100) * recruitmentCost;
+            const complianceCost = totalPayroll * complianceRisk;
+            const customerImpact = totalPayroll * 0.02; // 2% customer impact
+            const strategicCost = turnoverCost + complianceCost + customerImpact;
+
+            const totalCost = directCost + performanceCost + strategicCost;
+            const costPerEmployee = totalCost / employeeCount;
+
+            // Store costs with breakdown details
+            assessmentData.costs = {
+                directCost, performanceCost, strategicCost, totalCost, costPerEmployee,
+                // Breakdown details
+                managerTime, overtimePremium, tempLabor, conflictResolution,
+                productivityCost, qualityIssues,
+                turnoverCost, complianceCost, customerImpact
+            };
+
+            // Update UI
+            document.getElementById('directCost').textContent = `${Math.round(directCost).toLocaleString()}`;
+            document.getElementById('performanceCost').textContent = `${Math.round(performanceCost).toLocaleString()}`;
+            document.getElementById('strategicCost').textContent = `${Math.round(strategicCost).toLocaleString()}`;
+            document.getElementById('totalCost').textContent = `${Math.round(totalCost).toLocaleString()}`;
+            document.getElementById('costPerEmployee').textContent = `${Math.round(costPerEmployee).toLocaleString()}`;
+
+            // Update breakdown items
+            document.getElementById('managerTimeBreakdown').textContent = `${Math.round(managerTime).toLocaleString()}`;
+            document.getElementById('overtimePremiumBreakdown').textContent = `${Math.round(overtimePremium).toLocaleString()}`;
+            document.getElementById('tempLaborBreakdown').textContent = `${Math.round(tempLabor).toLocaleString()}`;
+            document.getElementById('conflictResolutionBreakdown').textContent = `${Math.round(conflictResolution).toLocaleString()}`;
+            document.getElementById('productivityCostBreakdown').textContent = `${Math.round(productivityCost).toLocaleString()}`;
+            document.getElementById('qualityIssuesBreakdown').textContent = `${Math.round(qualityIssues).toLocaleString()}`;
+            document.getElementById('turnoverCostBreakdown').textContent = `${Math.round(turnoverCost).toLocaleString()}`;
+            document.getElementById('complianceCostBreakdown').textContent = `${Math.round(complianceCost).toLocaleString()}`;
+            document.getElementById('customerImpactBreakdown').textContent = `${Math.round(customerImpact).toLocaleString()}`;
+
+            // Update progress bar (max cost for visualization)
+            const maxCost = 500000; // $500K max for progress bar
+            const progressWidth = Math.min((totalCost / maxCost) * 100, 100);
+            document.getElementById('costProgress').style.width = `${progressWidth}%`;
+        }
+
+        function calculateAIOpportunities() {
+            const { directCost, performanceCost, strategicCost, totalCost } = assessmentData.costs;
+
+            // Calculate potential savings from AI solutions
+            const automationSavings = directCost * 0.5; // 50% reduction in direct costs
+            const forecastingSavings = (assessmentData.baseline.overtimeHours * 52 * assessmentData.baseline.hourlyWage * 0.5) * 0.3; // 30% reduction in overtime
+            const preferencesSavings = strategicCost * 0.4; // 40% reduction in turnover costs
+            const complianceSavings = (assessmentData.baseline.employeeCount * assessmentData.baseline.hourlyWage * 40 * 52 * assessmentData.baseline.complianceRisk) * 0.7; // 70% compliance risk reduction
+
+            const totalPotentialSavings = automationSavings + forecastingSavings + preferencesSavings + complianceSavings;
+            const savingsPercentage = totalCost > 0 ? (totalPotentialSavings / totalCost * 100) : 0;
+
+            // Store AI savings
+            assessmentData.aiSavings = {
+                automationSavings, forecastingSavings, preferencesSavings, complianceSavings, totalPotentialSavings
+            };
+
+            // Update UI
+            document.getElementById('automationSavings').textContent = `${Math.round(automationSavings).toLocaleString()}`;
+            document.getElementById('forecastingSavings').textContent = `${Math.round(forecastingSavings).toLocaleString()}`;
+            document.getElementById('preferencesSavings').textContent = `${Math.round(preferencesSavings).toLocaleString()}`;
+            document.getElementById('complianceSavings').textContent = `${Math.round(complianceSavings).toLocaleString()}`;
+            document.getElementById('totalPotentialSavings').textContent = `${Math.round(totalPotentialSavings).toLocaleString()}`;
+            document.getElementById('savingsPercentage').textContent = `${Math.round(savingsPercentage)}`;
+        }
+
+        function calculateROI() {
+            const aiCost = parseFloat(document.getElementById('aiCost').value) || 75000;
+            const implementationCost = parseFloat(document.getElementById('implementationCost').value) || 30000;
+            const maintenanceCost = parseFloat(document.getElementById('maintenanceCost').value) || 15000;
+            const successRate = parseFloat(document.getElementById('successRate').value) || 75;
+
+            const { totalPotentialSavings } = assessmentData.aiSavings || { totalPotentialSavings: 0 };
+
+            const totalInvestment = aiCost + implementationCost + (maintenanceCost * 3); // 3-year maintenance
+            const annualSavings = totalPotentialSavings * (successRate / 100);
+            const threeYearSavings = annualSavings * 3;
+            const netBenefit = threeYearSavings - totalInvestment;
+            const roi = totalInvestment > 0 ? (netBenefit / totalInvestment) * 100 : 0;
+            const paybackPeriod = annualSavings > maintenanceCost ? ((aiCost + implementationCost) / (annualSavings - maintenanceCost)) * 12 : 999;
+
+            // Store ROI data
+            assessmentData.roi = {
+                totalInvestment, annualSavings, roi, paybackPeriod: Math.min(paybackPeriod, 999)
+            };
+
+            // Update UI
+            document.getElementById('totalInvestment').textContent = `${Math.round(totalInvestment).toLocaleString()}`;
+            document.getElementById('annualSavings').textContent = `${Math.round(annualSavings).toLocaleString()}`;
+            document.getElementById('roiPercentage').textContent = `${Math.round(roi)}%`;
+            document.getElementById('paybackPeriod').textContent = paybackPeriod < 999 ? `${Math.round(paybackPeriod)} months` : 'Never';
+        }
+
+        function updateReport() {
+            const orgName = document.getElementById('orgName').value || 'Sample Organization';
+            const currentDate = new Date().toLocaleDateString();
+
+            // Update report fields
+            document.getElementById('reportOrgName').textContent = orgName;
+            document.getElementById('reportDate').textContent = currentDate;
+            document.getElementById('reportEmployeeCount').textContent = assessmentData.baseline?.employeeCount || 100;
+            document.getElementById('reportTotalCost').textContent = `${Math.round(assessmentData.costs?.totalCost || 0).toLocaleString()}`;
+            document.getElementById('reportCostPerEmployee').textContent = `${Math.round(assessmentData.costs?.costPerEmployee || 0).toLocaleString()}`;
+            document.getElementById('reportPotentialSavings').textContent = `${Math.round(assessmentData.aiSavings?.totalPotentialSavings || 0).toLocaleString()}`;
+            document.getElementById('reportROI').textContent = `${Math.round(assessmentData.roi?.roi || 0)}%`;
+
+            // Update recommendations based on ROI
+            const roi = assessmentData.roi?.roi || 0;
+            const recommendationsEl = document.getElementById('recommendations');
+            
+            if (roi > 200) {
+                recommendationsEl.innerHTML = '<p><strong>STRONG RECOMMENDATION:</strong> High ROI indicates excellent investment opportunity. Proceed with AI scheduling implementation as high priority.</p>';
+                recommendationsEl.style.backgroundColor = '#d4edda';
+            } else if (roi > 100) {
+                recommendationsEl.innerHTML = '<p><strong>PROCEED:</strong> Good investment case. AI scheduling implementation recommended within 6-12 months.</p>';
+                recommendationsEl.style.backgroundColor = '#fff3cd';
+            } else if (roi > 50) {
+                recommendationsEl.innerHTML = '<p><strong>CAUTION:</strong> Marginal ROI. Consider improving current processes first or exploring lower-cost solutions.</p>';
+                recommendationsEl.style.backgroundColor = '#f8d7da';
+            } else {
+                recommendationsEl.innerHTML = '<p><strong>NOT RECOMMENDED:</strong> Low ROI suggests focusing on process improvements before technology investment.</p>';
+                recommendationsEl.style.backgroundColor = '#f8d7da';
+            }
+        }
+
+        function exportReport() {
+            const orgName = document.getElementById('orgName').value || 'Sample Organization';
+            const currentDate = new Date().toLocaleDateString();
+            
+            const reportContent = `
+TCS ASSESSMENT EXECUTIVE SUMMARY
+Generated: ${currentDate}
+Organization: ${orgName}
+
+KEY FINDINGS
+============
+Total Annual Scheduling Cost: ${Math.round(assessmentData.costs?.totalCost || 0).toLocaleString()}
+Cost per Employee: ${Math.round(assessmentData.costs?.costPerEmployee || 0).toLocaleString()}
+Industry Benchmark Range: $1,500 - $4,000 per employee
+
+COST BREAKDOWN
+==============
+Direct Operational Costs: ${Math.round(assessmentData.costs?.directCost || 0).toLocaleString()}
+Performance & Productivity: ${Math.round(assessmentData.costs?.performanceCost || 0).toLocaleString()}
+Strategic & Risk Costs: ${Math.round(assessmentData.costs?.strategicCost || 0).toLocaleString()}
+
+AI OPPORTUNITY ANALYSIS
+=======================
+Potential Annual Savings: ${Math.round(assessmentData.aiSavings?.totalPotentialSavings || 0).toLocaleString()}
+Savings Breakdown:
+- Schedule Automation: ${Math.round(assessmentData.aiSavings?.automationSavings || 0).toLocaleString()}
+- Demand Forecasting: ${Math.round(assessmentData.aiSavings?.forecastingSavings || 0).toLocaleString()}
+- Employee Preferences: ${Math.round(assessmentData.aiSavings?.preferencesSavings || 0).toLocaleString()}
+- Compliance Monitoring: ${Math.round(assessmentData.aiSavings?.complianceSavings || 0).toLocaleString()}
+
+ROI ANALYSIS
+============
+Total Investment (3-year): ${Math.round(assessmentData.roi?.totalInvestment || 0).toLocaleString()}
+Annual Savings: ${Math.round(assessmentData.roi?.annualSavings || 0).toLocaleString()}
+3-Year ROI: ${Math.round(assessmentData.roi?.roi || 0)}%
+Payback Period: ${assessmentData.roi?.paybackPeriod < 999 ? Math.round(assessmentData.roi.paybackPeriod) + ' months' : 'Never'}
+
+NEXT STEPS
+==========
+1. Validate high-confidence data points
+2. Improve estimates for low-confidence items
+3. Present business case to stakeholders
+4. Begin vendor evaluation process
+5. Plan pilot implementation
+
+Assessment completed using TCS Framework v2.0
+            `;
+
+            const blob = new Blob([reportContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TCS_Assessment_${orgName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function exportData() {
+            const exportData = {
+                organizationName: document.getElementById('orgName').value,
+                assessmentDate: new Date().toISOString(),
+                baseline: assessmentData.baseline,
+                costs: assessmentData.costs,
+                aiSavings: assessmentData.aiSavings,
+                roi: assessmentData.roi,
+                inputParameters: {
+                    aiCost: document.getElementById('aiCost').value,
+                    implementationCost: document.getElementById('implementationCost').value,
+                    maintenanceCost: document.getElementById('maintenanceCost').value,
+                    successRate: document.getElementById('successRate').value
+                }
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TCS_Assessment_Data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
